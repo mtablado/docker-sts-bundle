@@ -1,0 +1,25 @@
+version: '2'
+services:
+    sts-bundle:
+        build:
+            context: .
+            args:
+#                - JDK_REPO=ppa:openjdk-r/ppa
+#                - JDK_VERSION=openjdk-8-jdk
+                - user=mtablado
+                - uid=1001
+                - group=mtablado
+                - gid=1001
+        ports:
+            - "8080:8080"
+            - "8761:8761"
+        container_name: sts-bundle
+        volumes:
+            - /tmp/.X11-unix:/tmp/.X11-unix 
+            - /home/mtablado/devel:/home/mtablado/devel
+            - /home/mtablado/.m2:/home/mtablado/.m2
+#       privileged: true
+        extra_hosts:
+            - SaibGit:192.168.100.32
+        environment:
+            DISPLAY: $DISPLAY
