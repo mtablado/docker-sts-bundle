@@ -7,13 +7,23 @@ MAINTAINER Miguel Tablado
 
 ARG user="mtablado"
 ARG password="tete"
+# User id
+ARG uid
+# Group ID
+ARG gid
 # TODO modify the group settings.
 ARG group="develop"
 
+# Log the parameters
+RUN echo "user="${user} "uid="${uid}" "group="${group} gid="${gid} 
+
 # Add the developer user
-RUN groupadd ${group} \
-	&& useradd -m -d /home/${user} -s /bin/sh ${user} -g ${group} \
+RUN groupadd -g ${gid} ${group} \
+	&& useradd -m -u ${uid} -d /home/${user} -s /bin/sh ${user} -g ${group} \
     && echo "${user}:${password}" | chpasswd
+
+# Debug. Show user id information.
+RUN id ${user}
 
 # This will install add-apt-repository dependency.
 RUN apt-get update && apt-get install -y software-properties-common python-software-properties maven wget
@@ -81,5 +91,7 @@ RUN tar -xzvf ${TEMP_TAR_FILE_NAME}
 RUN chown -R root:${group} ${STS_INSTALLATION_DIR}/sts-bundle
 RUN chmod -R 775 ${STS_INSTALLATION_DIR}/sts-bundle
 RUN ls -lia ${STS_INSTALLATION_DIR}/sts-bundle/sts-3.8.2.RELEASE/
+
+USER ${user}
 
 CMD ["./sts-bundle/sts-3.8.2.RELEASE/STS"]
