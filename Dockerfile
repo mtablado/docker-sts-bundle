@@ -26,7 +26,7 @@ RUN groupadd -g ${gid} ${group} \
 RUN id ${user}
 
 # This will install add-apt-repository dependency.
-RUN apt-get update && apt-get install -y software-properties-common python-software-properties maven wget
+RUN apt-get update && apt-get install -y software-properties-common python-software-properties maven wget libcanberra-gtk-module git ssh
 
 #ARG JDK_REPO="ppa:webupd8team/java"
 #ARG JDK_VERSION="oracle-java8-installer"
@@ -90,8 +90,30 @@ RUN tar -xzvf ${TEMP_TAR_FILE_NAME}
 
 RUN chown -R root:${group} ${STS_INSTALLATION_DIR}/sts-bundle
 RUN chmod -R 775 ${STS_INSTALLATION_DIR}/sts-bundle
+
+# Add lombok (latest stable) project to eclipse sts.
+ADD https://projectlombok.org/downloads/lombok.jar /tmp/lombok.jar
+RUN java -jar /tmp/lombok.jar install ${STS_INSTALLATION_DIR}/sts-bundle/sts-3.8.2.RELEASE/ && \
+    rm /tmp/lombok.jar
+
+# Check permissions and lombok project.
 RUN ls -lia ${STS_INSTALLATION_DIR}/sts-bundle/sts-3.8.2.RELEASE/
 
+RUN mkdir -p /opt/alrajhi/omnichannel/logs/ && chmod -R 775 /opt/alrajhi
+VOLUME /opt/alrajhi/omnichannel/logs/
+
+# This ssh files will be moved to user home at start.sh script.
+RUN mkdir -p /tmp/.ssh/
+COPY "./ssh/config-server" /tmp/.ssh/id_rsa
+COPY "./ssh/config-server.pub" /tmp/.ssh/id_rsa.pub
+RUN chown -R ${user}:${user} /tmp/.ssh/
+
+# Set user limit for open files.
+COPY ["limits.conf","/etc/security/"]
+
+ADD ./start.sh /start.sh
+RUN chmod 755 /start.sh
 USER ${user}
 
-CMD ["./sts-bundle/sts-3.8.2.RELEASE/STS"]
+# TODO Send user with ${user}
+CMD /start.sh mtablado

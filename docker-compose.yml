@@ -13,13 +13,24 @@ services:
         ports:
             - "8080:8080"
             - "8761:8761"
+            # Arch ports
+            - "9000-9099:9000-9099"
+            # Business Ms prots
+            - "9100-9199:9100-9199"
         container_name: sts-bundle
         volumes:
             - /tmp/.X11-unix:/tmp/.X11-unix 
             - /home/mtablado/devel:/home/mtablado/devel
             - /home/mtablado/.m2:/home/mtablado/.m2
+            - /opt/alrajhi/omnichannel/logs/:/opt/alrajhi/omnichannel/logs/
 #       privileged: true
         extra_hosts:
             - SaibGit:192.168.100.32
+            - saibgit:192.168.100.32
+            - nexus.innofis.com:192.168.100.84
+            - it.innofis.com:192.168.100.122
+            - it2.innofis.com:192.168.100.127
+            - it3.innofis.com:192.168.100.128
+            - it4.innofis.com:192.168.100.130
         environment:
             DISPLAY: $DISPLAY
